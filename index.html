@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Botão Fugitivo - De volta à Terra</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; 
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            min-height: 50px;
+        }
+
+        button {
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .yes-button {
+            background: #28a745;
+            color: white;
+            z-index: 5;
+        }
+
+        .no-button {
+            background: #dc3545;
+            color: white;
+            position: relative;
+            z-index: 100;
+            will-change: transform;
+            /* Transição curtíssima para não travar a fuga */
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Gostou do meu Site?</h2>
+        <div class="button-group">
+            <button class="yes-button" id="yes-btn">Sim</button>
+            <button class="no-button" id="no-button">Não</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div style="font-size: 3rem;">🎉</div>
+            <h3>Fico muito feliz!</h3>
+            <p>Obrigado pelo feedback positivo! 😊</p>
+            <button onclick="location.reload()" style="padding: 10px 20px; cursor:pointer;">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        const noButton = document.getElementById('no-button');
+        const yesBtn = document.getElementById('yes-btn');
+        const modal = document.getElementById('modalOverlay');
+
+        function moverBotao(e) {
+            const rect = noButton.getBoundingClientRect();
+            
+            // Centro do botão em relação à tela
+            const btnCenterX = rect.left + rect.width / 2;
+            const btnCenterY = rect.top + rect.height / 2;
+
+            const dist = Math.hypot(e.clientX - btnCenterX, e.clientY - btnCenterY);
+
+            // Raio de fuga
+            if (dist < 100) {
+                // Cálculo de limites reais da janela
+                // Subtraímos o tamanho do botão para ele não sair nem um pouquinho
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+
+                // Gerar posição absoluta na tela
+                const newX = Math.random() * maxX;
+                const newY = Math.random() * maxY;
+
+                // Como o botão começou como 'relative', precisamos calcular a diferença
+                // para que o translate o leve exatamente para onde queremos na tela.
+                // Mas para ser mais simples e infalível, vamos usar 'fixed' na primeira fuga:
+                if (noButton.style.position !== 'fixed') {
+                    noButton.style.position = 'fixed';
+                }
+
+                noButton.style.left = '0px';
+                noButton.style.top = '0px';
+                noButton.style.transform = `translate(${newX}px, ${newY}px)`;
+            }
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            window.requestAnimationFrame(() => moverBotao(e));
+        });
+
+        yesBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+        });
+
+        // Previne clique no botão Não (caso alguém seja o Flash)
+        noButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("Como você conseguiu clicar aqui?! 😂");
+        });
+    </script>
+</body>
+</html>
